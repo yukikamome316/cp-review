@@ -13,7 +13,7 @@ import { ProblemModel } from "./interface";
 export default async function Home() {
   const problems = new Map<string, [string, number[]]>();
   for (const ac of acList) {
-    if (ignoreList.some((ign) => ac.problem_id.includes(ign))) continue;
+    if (ignoreList.some((part) => ac.problem_id.includes(part))) continue;
 
     if (problems.has(ac.problem_id)) {
       problems.get(ac.problem_id)![1].push(ac.epoch_second);
