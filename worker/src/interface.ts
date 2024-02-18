@@ -13,9 +13,7 @@ export interface SubmissionAPIResponse {
 
 export interface ProblemsSchema {
 	id: string;
-	last_solved: number;
 	diff: number;
-	precalc_coef: number;
 	priority: number;
 }
 

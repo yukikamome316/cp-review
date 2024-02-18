@@ -41,13 +41,8 @@ export default {
 							? Math.round(400 / Math.exp(1 - problem.difficulty / 400))
 							: problem.difficulty;
 
-					await env.DB.prepare('INSERT INTO problems (id, last_solved, diff, precalc_coef, priority) VALUES (?1, ?2, ?3, ?4, ?5)')
-						.bind(submission.problem_id, submission.epoch_second, difficulty, 0, 0)
-						.run();
-				} else {
-					// 更新
-					await env.DB.prepare('UPDATE problems SET last_solved = ?1 WHERE id = ?2')
-						.bind(submission.epoch_second, submission.problem_id)
+					await env.DB.prepare('INSERT INTO problems (id, diff, priority) VALUES (?1, ?2, ?3)')
+						.bind(submission.problem_id, difficulty, 0)
 						.run();
 				}
 

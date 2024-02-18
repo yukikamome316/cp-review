@@ -1,8 +1,9 @@
+DROP TABLE IF EXISTS ac_submissions;
+DROP TABLE IF EXISTS problems;
+
 CREATE TABLE IF NOT EXISTS problems (
   id TEXT PRIMARY KEY,
-  last_solved INTEGER,
   diff INTEGER,
-  precalc_coef REAL,
   priority REAL
 );
 
