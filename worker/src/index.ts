@@ -48,8 +48,9 @@ export default {
 							? Math.round(400 / Math.exp(1 - problem.difficulty / 400))
 							: problem.difficulty;
 
-					await env.DB.prepare('INSERT INTO problems (id, diff, priority) VALUES (?1, ?2, ?3)')
-						.bind(submission.problem_id, difficulty, 0)
+					await env.DB.prepare('INSERT INTO problems (id, diff, isMarathon, priority) VALUES (?1, ?2, ?3, ?4)')
+						// いったん AHC はマラソン確定、それ以外は手動で更新
+						.bind(submission.problem_id, difficulty, submission.problem_id.includes('ahc') ? 1 : 0, 0)
 						.run();
 				}
 
@@ -73,6 +74,9 @@ export default {
 
 			if (acs.results.length === 0) {
 				// Problems Table にあるなら AC してるはずなのに ac_submissions にないのはなんか変なので priority を INF にしておく
+			} else if (problem.isMarathon === 1) {
+				// マラソンは復習したくない 🤔
+				priority = -1;
 			} else {
 				// Priority 計算 - 1500 以下にはなるようにする
 				priority = memoryModel(

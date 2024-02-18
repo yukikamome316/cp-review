@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS problems;
 CREATE TABLE IF NOT EXISTS problems (
   id TEXT PRIMARY KEY,
   diff INTEGER,
+  isMarathon INTEGER,
   priority REAL
 );
 

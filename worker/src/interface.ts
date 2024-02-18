@@ -14,6 +14,7 @@ export interface SubmissionAPIResponse {
 export interface ProblemsSchema {
 	id: string;
 	diff: number;
+	isMarathon: 0 | 1;
 	priority: number;
 }
 
