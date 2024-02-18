@@ -33,7 +33,14 @@ export default async function Home() {
     }
   ).then((res) => res.json())) as Record<string, ProblemModel>;
 
-  const mem_f = (t: number) => {
+  // _t: 経過時間 (秒)
+  const mem_f = (_t: number) => {
+    // _t -> t (日)
+    const t = _t / 86400;
+
+    // すぐ解くと意味がないので、 10 日未満はなかったことにする
+    if (t < 10) return 1;
+
     const c = 1.25;
     const k = 1.84;
     return Math.pow(Math.log10(t), c) / (k + Math.pow(Math.log10(t), c));
