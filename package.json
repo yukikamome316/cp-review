@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "packageManager": "yarn@4.1.0",
+  "workspaces": [
+    "webapp",
+    "worker"
+  ]
+}
