@@ -28,6 +28,7 @@ async function crawl() {
 
     submissions.push(...sub.filter(s => s.result === "AC").map(s => ({
       id: s.id,
+      contest_id: s.contest_id,
       epoch_second: s.epoch_second,
       problem_id: s.problem_id,
     })));
