@@ -39,3 +39,20 @@ export const getProbModels = async (id: string) => {
 
 	return Promise.resolve(ProbModels[id]);
 };
+
+export const memoryModel = (diff: number, ac_times: number[], now: number) => {
+	let res = (1 + diff / 8000) * 1000; // max を 1500 くらいにするため
+	ac_times.push(now);
+
+	const f = (t: number) => {
+		const c = 1.25;
+		const k = 1.84;
+		return Math.pow(Math.log10(t), c) / (k + Math.pow(Math.log10(t), c));
+	};
+
+	for (let i = 1; i < ac_times.length; i++) {
+		res *= f(ac_times[i] - ac_times[i - 1]);
+	}
+
+	return res;
+};

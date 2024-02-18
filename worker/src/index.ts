@@ -1,5 +1,12 @@
 import { ProblemsSchema } from './interface';
-import { fetchSubmissions, getProbModels, sleep } from './func';
+import { fetchSubmissions, getProbModels, memoryModel, sleep } from './func';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Tokyo');
 
 export interface Env {
 	DB: D1Database;
@@ -51,6 +58,31 @@ export default {
 					.bind(submission.id, submission.epoch_second, submission.problem_id)
 					.run();
 			}
+		}
+
+		// priority の計算
+		const problems = await env.DB.prepare('SELECT * FROM problems').all<ProblemsSchema>();
+		const nowEpoch = dayjs().tz().unix();
+
+		for (const problem of problems.results) {
+			const acs = await env.DB.prepare('SELECT submitted_at FROM ac_submissions WHERE problem_id = ?1 ORDER BY submitted_at ASC')
+				.bind(problem.id)
+				.all<{ submitted_at: number }>();
+
+			let priority = 1e5;
+
+			if (acs.results.length === 0) {
+				// Problems Table にあるなら AC してるはずなのに ac_submissions にないのはなんか変なので priority を INF にしておく
+			} else {
+				// Priority 計算 - 1500 以下にはなるようにする
+				priority = memoryModel(
+					problem.diff,
+					acs.results.map((ac) => ac.submitted_at),
+					nowEpoch
+				);
+			}
+
+			await env.DB.prepare('UPDATE problems SET priority = ?1 WHERE id = ?2').bind(priority, problem.id).run();
 		}
 	},
 };
