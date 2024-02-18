@@ -57,6 +57,9 @@ export default async function Home() {
 
       if (list.length === 0) {
         // なんか変だよ
+      } else if (list.slice(-1)[0] + 86400 * 10 >= now) {
+        // 10 日以内に解いた
+        priority = -1;
       } else {
         let res = (1 + diff / 8000) * 1000; // max を 1500 くらいにするため
         list.push(now);
