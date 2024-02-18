@@ -1,50 +1,61 @@
-/**
- * Welcome to Cloudflare Workers!
- *
- * This is a template for a Scheduled Worker: a Worker that can run on a
- * configurable interval:
- * https://developers.cloudflare.com/workers/platform/triggers/cron-triggers/
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+import { ProblemsSchema } from './interface';
+import { fetchSubmissions, getProbModels, sleep } from './func';
 
 export interface Env {
-	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-	// MY_KV_NAMESPACE: KVNamespace;
-	//
-	// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-	// MY_DURABLE_OBJECT: DurableObjectNamespace;
-	//
-	// Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-	// MY_BUCKET: R2Bucket;
-	//
-	// Example binding to a Service. Learn more at https://developers.cloudflare.com/workers/runtime-apis/service-bindings/
-	// MY_SERVICE: Fetcher;
-	//
-	// Example binding to a Queue. Learn more at https://developers.cloudflare.com/queues/javascript-apis/
-	// MY_QUEUE: Queue;
-	//
-	// Example binding to a D1 Database. Learn more at https://developers.cloudflare.com/workers/platform/bindings/#d1-database-bindings
-	// DB: D1Database
+	DB: D1Database;
 }
 
 export default {
-	// The scheduled handler is invoked at the interval set in our wrangler.toml's
-	// [[triggers]] configuration.
 	async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
-		// A Cron Trigger can make requests to other endpoints on the Internet,
-		// publish to a Queue, query a D1 Database, and much more.
-		//
-		// We'll keep it simple and make an API call to a Cloudflare API:
-		let resp = await fetch('https://api.cloudflare.com/client/v4/ips');
-		let wasSuccessful = resp.ok ? 'success' : 'fail';
+		// 最終同期日時を取得する
+		let lastSync =
+			((await env.DB.prepare('SELECT submitted_at FROM ac_submissions ORDER BY submitted_at DESC LIMIT 1').first<number>('submitted_at')) ??
+				0) + 1;
 
-		// You could store this result in KV, write to a D1 Database, or publish to a Queue.
-		// In this template, we'll just log the result:
-		console.log(`trigger fired at ${event.cron}: ${wasSuccessful}`);
+		// fetch
+		const submissions = [];
+		while (true) {
+			const sub = await fetchSubmissions(lastSync);
+			if (sub.length === 0) break;
+			submissions.push(...sub);
+			lastSync = sub.slice(-1)[0].epoch_second + 1;
+			await sleep(1000);
+		}
+
+		// insert
+		console.log(submissions.length);
+		for (const submission of submissions) {
+			if (submission.result === 'AC') {
+				// もし Problems になければ追加する
+				// 外部キー制約で落ちるので
+				const prob = await env.DB.prepare('SELECT * FROM problems WHERE id = ?1').bind(submission.problem_id).first<ProblemsSchema>();
+				if (prob === null) {
+					const problem = await getProbModels(submission.problem_id);
+
+					// もし diff がなければ 0
+					// そうではない場合は https://github.com/kenkoooo/AtCoderProblems/blob/37e64781e37e7b0332cc8fe54e99d38ff0229d3e/atcoder-problems-frontend/src/utils/index.ts#L49-L52 を参考に
+					let difficulty =
+						problem === undefined || problem.difficulty === undefined
+							? 0
+							: problem.difficulty < 400
+							? Math.round(400 / Math.exp(1 - problem.difficulty / 400))
+							: problem.difficulty;
+
+					await env.DB.prepare('INSERT INTO problems (id, last_solved, diff, precalc_coef, priority) VALUES (?1, ?2, ?3, ?4, ?5)')
+						.bind(submission.problem_id, submission.epoch_second, difficulty, 0, 0)
+						.run();
+				} else {
+					// 更新
+					await env.DB.prepare('UPDATE problems SET last_solved = ?1 WHERE id = ?2')
+						.bind(submission.epoch_second, submission.problem_id)
+						.run();
+				}
+
+				// ac_submissions に追加する
+				await env.DB.prepare('INSERT INTO ac_submissions (id, submitted_at, problem_id) VALUES (?1, ?2, ?3)')
+					.bind(submission.id, submission.epoch_second, submission.problem_id)
+					.run();
+			}
+		}
 	},
 };
