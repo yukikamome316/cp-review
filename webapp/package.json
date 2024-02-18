@@ -7,7 +7,7 @@
     "build": "remix build",
     "dev": "remix dev --manual -c \"npm run start\"",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "start": "wrangler pages dev --compatibility-date=2023-06-21 ./public",
+    "start": "wrangler pages dev --compatibility-date=2023-06-21 ./public --d1 DB=482f5bfb-5991-4980-89c8-df4837ec5c54",
     "typecheck": "tsc"
   },
   "dependencies": {

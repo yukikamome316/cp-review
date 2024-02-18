@@ -2,8 +2,10 @@ name = "worker"
 main = "src/index.ts"
 compatibility_date = "2024-02-08"
 
-# Cron Triggers
-# Docs: https://developers.cloudflare.com/workers/platform/triggers/cron-triggers/
-# Configuration: https://developers.cloudflare.com/workers/wrangler/configuration/#triggers
 [triggers]
-crons = ["* * * * *"] # * * * * * = run every minute
+crons = ["*/5 * * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cp-review"
+database_id = "482f5bfb-5991-4980-89c8-df4837ec5c54"
