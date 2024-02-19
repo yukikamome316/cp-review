@@ -56,7 +56,7 @@ export default async function Home() {
     return Math.pow(Math.log10(t), c) / (k + Math.pow(Math.log10(t), c));
   };
 
-  const now = dayjs().tz().unix();
+  const now = dayjs().tz();
   const lists = Array.from(problems.entries())
     .map(([problem_id, [contest_id, list]]) => {
       let diff = probModels[problem_id]?.difficulty ?? -1;
@@ -64,29 +64,32 @@ export default async function Home() {
         diff = Math.round(400 / Math.exp(1 - diff / 400));
 
       let priority = 1e5;
+      const last_solved = list.slice(-1)[0];
 
       if (list.length === 0) {
         // なんか変だよ
-      } else if (list.slice(-1)[0] + 86400 * 10 >= now) {
+      } else if (list.slice(-1)[0] + 86400 * 10 >= now.unix()) {
         // 10 日以内に解いた
         priority = -1;
       } else {
         let res = (1 + diff / 8000) * 1000; // max を 1500 くらいにするため
-        list.push(now);
+        list.push(now.unix());
         for (let i = 1; i < list.length; i++)
           res *= mem_f(list[i] - list[i - 1]);
         priority = res;
       }
 
-      return { contest_id, problem_id, diff, priority };
+      return { contest_id, problem_id, diff, priority, last_solved };
     })
     .sort((a, b) => b.priority - a.priority);
 
   return (
     <>
+      <p>最終更新: {now.format("YYYY 年 MM 月 DD 日 HH 時ごろ")}</p>
       <Table className={style.table}>
         <tr>
           <th>ID</th>
+          <th>Last Solved</th>
           <th>Diff</th>
           <th>Priority</th>
         </tr>
@@ -98,6 +101,9 @@ export default async function Home() {
               >
                 {prob.problem_id}
               </Link>
+            </td>
+            <td>
+              {dayjs.unix(prob.last_solved).tz().format("YYYY-MM-DD HH:mm:ss")}
             </td>
             <td>{prob.diff}</td>
             <td>{prob.priority.toFixed(2)}</td>
