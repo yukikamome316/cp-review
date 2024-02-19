@@ -1,3 +1,5 @@
+import NextLink from "next/link";
+
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -6,12 +8,19 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("Asia/Tokyo");
 
+import { Table, configureAdapter, Link } from "@a01sa01to/ui";
+
 import acList from "@/data/ac_list.json";
 import ignoreList from "@/data/ignore_list.json";
 
 import type { ProblemModel } from "./interface";
+import style from "./page.module.css";
 
 export default async function Home() {
+  configureAdapter("link", (props) => (
+    <NextLink {...props} href={props.href ?? ""} />
+  ));
+
   const problems = new Map<string, [string, number[]]>();
   for (const ac of acList) {
     if (ignoreList.some((part) => ac.problem_id.includes(part))) continue;
@@ -75,28 +84,26 @@ export default async function Home() {
 
   return (
     <>
-      <table>
+      <Table className={style.table}>
         <tr>
           <th>ID</th>
-          <th>Link</th>
           <th>Diff</th>
           <th>Priority</th>
         </tr>
         {lists.map((prob) => (
           <tr key={prob.problem_id}>
-            <td>{prob.problem_id}</td>
             <td>
-              <a
+              <Link
                 href={`https://atcoder.jp/contests/${prob.contest_id}/tasks/${prob.problem_id}`}
               >
-                Link
-              </a>
+                {prob.problem_id}
+              </Link>
             </td>
             <td>{prob.diff}</td>
             <td>{prob.priority.toFixed(2)}</td>
           </tr>
         ))}
-      </table>
+      </Table>
     </>
   );
 }

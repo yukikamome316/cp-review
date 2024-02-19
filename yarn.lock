@@ -20,16 +20,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@a01sa01to/ui@npm:^0.0.10":
-  version: 0.0.10
-  resolution: "@a01sa01to/ui@npm:0.0.10"
+"@a01sa01to/ui@npm:^0.0.12":
+  version: 0.0.12
+  resolution: "@a01sa01to/ui@npm:0.0.12"
   dependencies:
     clsx: "npm:^2.1.0"
     react-icons: "npm:^5.0.1"
   peerDependencies:
     react: ^18.2.0
     react-dom: ^18.2.0
-  checksum: 10c0/6386144858ef8f8b4a53dffaed4343eb30b70b1b8f0ee9a5aefbabc589e43d4c6041661a3c75e960bb8d48a7f8e8c190082dd25435c299543d4707c1abeeee5f
+  checksum: 10c0/8a137b278d208ba571b0638ebb945ed1005b0cdb87a65eacf1d99467ed0c302bf99f998e01b8f37ef8c396e280543fce32d78c2d2643c7b38b43112ea13dd38a
   languageName: node
   linkType: hard
 
@@ -2767,7 +2767,7 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@a01sa01to/eslint-config": "npm:^1.0.1"
-    "@a01sa01to/ui": "npm:^0.0.10"
+    "@a01sa01to/ui": "npm:^0.0.12"
     "@types/eslint": "npm:^8.56.2"
     "@types/node": "npm:^20.11.19"
     "@types/react": "npm:^18.2.56"
