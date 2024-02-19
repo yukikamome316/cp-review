@@ -8,7 +8,8 @@ dayjs.tz.setDefault("Asia/Tokyo");
 
 import acList from "@/data/ac_list.json";
 import ignoreList from "@/data/ignore_list.json";
-import { ProblemModel } from "./interface";
+
+import type { ProblemModel } from "./interface";
 
 export default async function Home() {
   const problems = new Map<string, [string, number[]]>();
