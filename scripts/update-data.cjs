@@ -3,6 +3,26 @@ const { resolve } = require("path")
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+async function dlProblem() {
+  const filePath = resolve(__dirname, "../src/data/problem_models.json")
+  const res = await fetch(
+    "https://kenkoooo.com/atcoder/resources/problem-models.json",
+    {
+      headers: {
+        Accept: "*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Cache-Control": "no-cache",
+      },
+    }
+  )
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch problems: ${res.status} ${res.statusText}`);
+  }
+
+  await writeFile(filePath, JSON.stringify(await res.json(), null, 0));
+}
+
 async function crawl() {
   const filePath = resolve(__dirname, '../src/data/ac_list.json');
 
@@ -41,4 +61,8 @@ async function crawl() {
   await writeFile(filePath, JSON.stringify(newACList, null, 0));
 }
 
-(async () => { await crawl() })()
+(async () => {
+  await dlProblem()
+  await sleep(1000)
+  await crawl()
+})()

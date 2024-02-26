@@ -12,8 +12,8 @@ import { Table, configureAdapter, Link } from "@a01sa01to/ui";
 
 import acList from "@/data/ac_list.json";
 import ignoreList from "@/data/ignore_list.json";
+import probModels from "@/data/problem_models.json";
 
-import type { ProblemModel } from "./interface";
 import style from "./page.module.css";
 
 export default async function Home() {
@@ -32,17 +32,6 @@ export default async function Home() {
     }
   }
 
-  const probModels = (await fetch(
-    "https://kenkoooo.com/atcoder/resources/problem-models.json",
-    {
-      headers: {
-        Accept: "*/*",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Cache-Control": "no-cache",
-      },
-    }
-  ).then((res) => res.json())) as Record<string, ProblemModel>;
-
   // _t: 経過時間 (秒)
   const mem_f = (_t: number) => {
     // _t -> t (日)
@@ -59,6 +48,7 @@ export default async function Home() {
   const now = dayjs().tz();
   const lists = Array.from(problems.entries())
     .map(([problem_id, [contest_id, list]]) => {
+      // @ts-expect-error: problem_id is not index of probModels
       let diff = probModels[problem_id]?.difficulty ?? -1;
       if (diff !== -1 && diff < 400)
         diff = Math.round(400 / Math.exp(1 - diff / 400));
