@@ -48,8 +48,11 @@ export default async function Home() {
   const now = dayjs().tz();
   const lists = Array.from(problems.entries())
     .map(([problem_id, [contest_id, list]]) => {
+      const is_experimental: boolean =
+        // @ts-expect-error: problem_id is not index of probModels
+        probModels[problem_id]?.is_experimental ?? false;
       // @ts-expect-error: problem_id is not index of probModels
-      let diff = probModels[problem_id]?.difficulty ?? -1;
+      let diff: number = probModels[problem_id]?.difficulty ?? -1;
       if (diff !== -1 && diff < 400)
         diff = Math.round(400 / Math.exp(1 - diff / 400));
 
@@ -69,7 +72,14 @@ export default async function Home() {
         priority = res;
       }
 
-      return { contest_id, problem_id, diff, priority, last_solved };
+      return {
+        contest_id,
+        problem_id,
+        diff,
+        priority,
+        last_solved,
+        is_experimental,
+      };
     })
     .sort((a, b) => b.priority - a.priority);
 
@@ -95,7 +105,9 @@ export default async function Home() {
             <td>
               {dayjs.unix(prob.last_solved).tz().format("YYYY-MM-DD HH:mm:ss")}
             </td>
-            <td>{prob.diff}</td>
+            <td>
+              {prob.diff} {prob.is_experimental && <>🧪</>}
+            </td>
             <td>{prob.priority.toFixed(2)}</td>
           </tr>
         ))}
