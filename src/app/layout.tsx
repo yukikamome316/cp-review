@@ -5,7 +5,7 @@ import { Body, Main, Header, HeaderLogo } from "@a01sa01to/ui";
 import "@a01sa01to/ui/style.css";
 
 export const metadata: Metadata = {
-  title: "CP Review (a01sa01to)",
+  title: "CP Review (yukikamome316)",
   description: "競プロ振り返りツール",
 };
 
@@ -26,7 +26,7 @@ export default function RootLayout({
       </head>
       <Body>
         <Header>
-          <HeaderLogo>CP Review (a01sa01to)</HeaderLogo>
+          <HeaderLogo>CP Review (yukikamome316)</HeaderLogo>
         </Header>
         <Main>{children}</Main>
         <footer></footer>

@@ -32,7 +32,7 @@ async function crawl() {
 
   const submissions = [];
   while (true) {
-    const res = await fetch(`https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?from_second=${lastSync + 1}&user=a01sa01to`, {
+    const res = await fetch(`https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?from_second=${lastSync + 1}&user=yukikamome316`, {
       Accept: '*/*',
       'Accept-Encoding': 'gzip, deflate, br',
       'Cache-Control': 'no-cache',
